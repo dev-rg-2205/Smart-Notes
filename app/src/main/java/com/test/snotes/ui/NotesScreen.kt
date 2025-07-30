@@ -49,7 +49,7 @@ fun NotesScreen(navController: NavController) {
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
-            Toast.makeText(context, "Please Allow Notification Permission! From App Info!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Please Allow Notification Permission From App Info!", Toast.LENGTH_SHORT).show()
         }
     }
 
