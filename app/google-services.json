@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "209339879233",
+    "project_id": "mymanger-fdee0",
+    "storage_bucket": "mymanger-fdee0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209339879233:android:d73170904d220df76f5bc0",
+        "android_client_info": {
+          "package_name": "com.test.snotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXWoCyW9lSRW_KIBn6DeI8S_UAlnOLYq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
