@@ -1,7 +1,13 @@
 package com.test.snotes.ui
 
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -13,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -38,9 +45,31 @@ fun NotesScreen(navController: NavController) {
     val notes by viewModel.notes.collectAsState()
     val context = LocalContext.current
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(context, "Please Allow Notification Permission! From App Info!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED -> {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
     LaunchedEffect(true) { viewModel.loadNotes() }
 
     GlobalLoaderOverlay()
+
 
     Scaffold(
         topBar = {
@@ -60,14 +89,16 @@ fun NotesScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                navController.navigate(Router.AddEditNoteScreen(
-                    id = "",
-                    title = "",
-                    description = "",
-                    reminderTime = "",
-                    userId = "",
-                    isAlarmOn = false
-                    ))
+                navController.navigate(
+                    Router.AddEditNoteScreen(
+                        id = "",
+                        title = "",
+                        description = "",
+                        reminderTime = "",
+                        userId = "",
+                        isAlarmOn = false
+                    )
+                )
             }) {
                 Text("+")
             }
@@ -88,8 +119,8 @@ fun NotesScreen(navController: NavController) {
                     isAlarmOn = task.isAlarmOn,
                     onAlarmToggle = { it ->
                         task.isAlarmOn = it
-                        if (task.isAlarmOn){
-                            Log.e("Alarm are schedule","Start")
+                        if (task.isAlarmOn) {
+                            Log.e("Alarm are schedule", "Start")
                             AlarmScheduler.scheduleAlarmFromFormattedDate(
                                 context = context,
                                 noteId = task.id,
@@ -97,9 +128,9 @@ fun NotesScreen(navController: NavController) {
                                 title = task.title,
                                 description = task.description
                             )
-                        }else{
-                            Log.e("Alarm are schedule","false")
-                            AlarmScheduler.cancelAlarm(context,task.id)
+                        } else {
+                            Log.e("Alarm are schedule", "false")
+                            AlarmScheduler.cancelAlarm(context, task.id)
                         }
 
                         viewModel.updateNote(
@@ -115,17 +146,19 @@ fun NotesScreen(navController: NavController) {
                         )
                     },
                     onEditClick = {
-                        navController.navigate(Router.AddEditNoteScreen(
-                            id = task.id,
-                            title = task.title,
-                            description = task.description,
-                            reminderTime = task.reminderTime,
-                            userId = task.userId,
-                            isAlarmOn = task.isAlarmOn
-                        ))
+                        navController.navigate(
+                            Router.AddEditNoteScreen(
+                                id = task.id,
+                                title = task.title,
+                                description = task.description,
+                                reminderTime = task.reminderTime,
+                                userId = task.userId,
+                                isAlarmOn = task.isAlarmOn
+                            )
+                        )
                     },
                     onDeleteClick = {
-                        AlarmScheduler.cancelAlarm(context,task.id)
+                        AlarmScheduler.cancelAlarm(context, task.id)
                         viewModel.deleteNote(task.id)
                     }
                 )
